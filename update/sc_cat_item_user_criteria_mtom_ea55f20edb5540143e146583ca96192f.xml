@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sc_cat_item_user_criteria_mtom">
+    <sc_cat_item_user_criteria_mtom action="INSERT_OR_UPDATE">
+        <sc_cat_item display_value="Create A First Advantage Case for Background Verification">d5024f5fdb7c88903e146583ca961948</sc_cat_item>
+        <sys_class_name>sc_cat_item_user_criteria_mtom</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2019-11-25 08:37:08</sys_created_on>
+        <sys_id>ea55f20edb5540143e146583ca96192f</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>Create A First Advantage Case for Background Verification.FADV Admin User </sys_name>
+        <sys_package display_value="First Advantage Spoke" source="x_snc_fadv">56e01698dbb333403e146583ca96192d</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="First Advantage Spoke">56e01698dbb333403e146583ca96192d</sys_scope>
+        <sys_update_name>sc_cat_item_user_criteria_mtom_ea55f20edb5540143e146583ca96192f</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2019-11-25 08:37:08</sys_updated_on>
+        <user_criteria display_value="FADV Admin User ">c135f20edb5540143e146583ca961928</user_criteria>
+    </sc_cat_item_user_criteria_mtom>
+</record_update>

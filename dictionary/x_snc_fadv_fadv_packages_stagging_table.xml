@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element extends="sys_import_set_row" label="FADV Packages Stagging Table" max_length="40" name="x_snc_fadv_fadv_packages_stagging_table" type="collection">
+        <element label="Package Id" max_length="40" name="package_id" type="string"/>
+        <element label="Package Name" max_length="40" name="package_name" type="string"/>
+    </element>
+</database>

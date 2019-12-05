@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element label="Packages" max_length="40" name="x_snc_fadv_packages" type="collection">
+        <element choice="3" default="True" label="Active" max_length="40" name="active" type="choice">
+            <choice>
+                <element inactive_on_update="false" label="False" value="False"/>
+                <element inactive_on_update="false" label="True" value="True"/>
+            </choice>
+        </element>
+        <element label="Package ID" max_length="40" name="package_id" type="string"/>
+        <element display="true" label="Package Name" max_length="40" name="package_name" type="string"/>
+        <index name="index">
+            <element name="package_id"/>
+        </index>
+    </element>
+</database>

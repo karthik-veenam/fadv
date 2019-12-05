@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>public</access>
+        <active>true</active>
+        <api_name>x_snc_fadv.FirstAdvantageWebhookUtilswithStagingScript</api_name>
+        <caller_access/>
+        <client_callable>true</client_callable>
+        <description/>
+        <name>FirstAdvantageWebhookUtilswithStagingScript</name>
+        <script><![CDATA[var FirstAdvantageWebhookUtilswithStagingScript = Class.create();
+FirstAdvantageWebhookUtilswithStagingScript.prototype = Object.extendsObject(global.AbstractAjaxProcessor, {
+	//Validating inputs for Null values.
+	validateInputs: function(key, inputs) {
+		if ((!inputs) && (inputs == '') && (inputs == ""))
+			gs.error("The field " + key + " is null.");
+
+		else
+			return inputs;
+	},
+	validateWebhookRequest: function(key){
+
+		var clientRcrd = new GlideRecord("x_snc_fadv_webhook_client_details");
+		clientRcrd.query();
+		while (clientRcrd.next()){
+			var decryptedID = clientRcrd.authorization_key.getDecryptedValue();
+			gs.info(decryptedID);
+			if (decryptedID == key) {
+				return 200;
+			}
+		}
+		gs.addErrorMessage("Authorization header did not match.");
+		return 500;		
+	},
+
+	//Adding into Invite Task Staging Table.
+	processWebhookInvitePayload: function(inputPayload){
+
+		try {
+			var applicant_id = inputPayload.applicant_id;
+			var invite_url = inputPayload.invite_url;
+			var candidate_id = inputPayload.candidate_id;
+			var application_event = inputPayload.application_event;
+			var application_status = inputPayload.application_status; //not sending ahead
+			var package_id = inputPayload.package_id;
+			var state = 0;
+			var work_notes = "";
+		}
+		catch (err){
+			gs.addErrorMessage('Received incomplete webhook Payload from First Advantage.');
+			throw new Error("Received incomplete webhook Payload from First Advantage.");
+		}
+
+		if(application_status == "Started" && application_event == "Applicant Registered and or Updated")
+			state = 3;
+
+		else if(application_status == "Started" && application_event == "Consent Accepted"){
+			state = 3;
+			work_notes ="Candidate has started filling the background verification form.";
+		}
+
+		else if(application_status == "Completed" && application_event == "BI Submitted"){
+			state = 4;
+			work_notes = "Candidate has successfully completed the background verification form, hence marking the state as \"complete\".";
+		}
+
+		else if(application_status == "Completed" && application_event == "Consent Rejected"){
+			state = 5;
+			work_notes = "Candidate has rejected the consent, hence marking the state as \"complete\".";
+		}
+
+		else if(application_status == "DealBroken" && application_event == "Consent Rejected"){
+			state = 5;
+			work_notes = "Candidate has rejected the consent, hence marking the state as \"complete-DealBroken\".";
+		} else {
+			//
+		}
+
+		var fadvInviteStagingGr = new GlideRecord('x_snc_fadv_invite_staging_table');
+		fadvInviteStagingGr.initialize();
+		fadvInviteStagingGr.setValue('invite_id', applicant_id);
+		fadvInviteStagingGr.setValue('invite_url', invite_url);
+		fadvInviteStagingGr.setValue('candidate_id', candidate_id);
+		fadvInviteStagingGr.setValue('application_event', application_event);
+		fadvInviteStagingGr.setValue('package_id', package_id);
+		fadvInviteStagingGr.setValue('state', state);
+		fadvInviteStagingGr.setValue('event', work_notes.toString());
+		fadvInviteStagingGr.insert();
+
+	},
+
+	////Adding into Order Staging Table.
+	processWebhookOrderPayload: function(inputPayload) {
+		try{
+
+
+			var order_id = inputPayload.order_id;
+			var order_status = inputPayload.order_status;
+			var result_status='';
+			if (inputPayload.result_status)
+				result_status = inputPayload.result_status;
+			var package_id = inputPayload.package_id;
+			var candidate_id = inputPayload.candidate_id;			
+			var state=0;
+			var client_ref_type='';
+			var number='';
+
+		}
+		catch (err){
+			gs.addErrorMessage('Received incomplete webhook Payload from First Advantage.');
+			throw new Error("Received incomplete webhook Payload from First Advantage.");
+		}
+		if (order_status == "InProgress")
+			state = 3;
+		if (order_status == "Complete")
+			state = 4;
+		if (order_status == "Cancelled")
+			state = 5;
+		/*We will ignore order id with CPS */
+
+		if(!order_id.startsWith("CPS")){
+
+			if(inputPayload.client_reference){
+				client_ref_type = 'single';
+				number = inputPayload.client_reference;
+			}
+
+			//checked for empty array in scripted rest api, here we will get non-empty arrays only.
+			else if(inputPayload.client_references){
+				var multiple_client_reference_from_webhook =inputPayload.client_references.join();
+				client_ref_type = 'mulitple';
+				number = multiple_client_reference_from_webhook;
+			}
+
+			//this is not required, payload will either contain client reference or client references.
+			else {
+				number = "";
+			} 
+
+			var fadvOrderStagingGr = new GlideRecord('x_snc_fadv_order_staging_table');
+			fadvOrderStagingGr.initialize();
+			fadvOrderStagingGr.setValue('order_id', order_id);
+			fadvOrderStagingGr.setValue('order_status', order_status);
+			fadvOrderStagingGr.setValue('candidate_id', candidate_id);
+			fadvOrderStagingGr.setValue('result_status', result_status);
+			fadvOrderStagingGr.setValue('state', state);
+			fadvOrderStagingGr.setValue('package_id', package_id);
+			fadvOrderStagingGr.setValue('client_reference_is_single_or_mulitple', client_ref_type);
+			fadvOrderStagingGr.setValue('number', number);
+			fadvOrderStagingGr.insert();
+		}
+	},
+	type: 'FirstAdvantageWebhookUtilswithStagingScript'
+});]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2019-11-22 09:14:04</sys_created_on>
+        <sys_id>8bd0e789db918cd03e146583ca9619c5</sys_id>
+        <sys_mod_count>15</sys_mod_count>
+        <sys_name>FirstAdvantageWebhookUtilswithStagingScript</sys_name>
+        <sys_package display_value="First Advantage Spoke" source="x_snc_fadv">56e01698dbb333403e146583ca96192d</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="First Advantage Spoke">56e01698dbb333403e146583ca96192d</sys_scope>
+        <sys_update_name>sys_script_include_8bd0e789db918cd03e146583ca9619c5</sys_update_name>
+        <sys_updated_by>priytam</sys_updated_by>
+        <sys_updated_on>2019-12-03 05:59:43</sys_updated_on>
+    </sys_script_include>
+</record_update>

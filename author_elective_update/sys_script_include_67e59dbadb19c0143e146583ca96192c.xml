@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include"><sys_script_include action="DELETE"><access>package_private</access><active>true</active><api_name>x_snc_fadv.FirstAdvanatageCallRestV2</api_name><caller_access/><client_callable>false</client_callable><description/><name>FirstAdvanatageCallRestV2</name><script><![CDATA[var FirstAdvanatageCallRestV2 = Class.create();
+FirstAdvanatageCallRestV2.prototype = {
+    initialize: function() {},
+    callRestv2: function(name, isexpired, token_type) {
+        gs.info("incall");
+        var r = new sn_ws.RESTMessageV2('x_snc_fadv.First Advantage - Get Token', 'POST Token');
+        var gr = new GlideRecord('sys_alias');
+        gr.query();
+        while (gr.next()) {
+            if (gr.get('id', 'x_snc_fadv.testtt'))
+                var sys_id = gr.getValue('sys_id');
+        }
+        var provider = new sn_cc.ConnectionInfoProvider();
+        var connectionInfo = provider.getConnectionInfo(sys_id);
+        var host_url = connectionInfo.getAttribute("host");
+        gs.info(host_url);
+        r.setEndpoint(host_url + "api/v1.1/oauth2/token");
+        // r.setEndpoint("https://rest-ua.fadv.com/api/v1.1/oauth2/token");
+        var gr2 = new GlideRecord('x_snc_fadv_token_table');
+        gr2.query();
+        while (gr2.next()) {
+            if (gr2.get('peer.name', 'name') && gr2.get('type', 'refresh_token') && gr2.get('isexpired', 'false')) {
+                var refresh_sys_id = gr2.getUniqueValue();
+                var refreshToken = gr2.getValue('token_received');
+            }
+        }
+        if (token_type == "access_token" && isexpired == "true") {
+            gs.info("in if");
+            r.setStringParameterNoEscape('grant_type', 'refresh_token');
+            r.setStringParameterNoEscape('refresh_token', refreshToken);
+        } else if (token_type == "refresh_token" && isexpired == "true") {
+            gs.info("in else");
+            r.setStringParameterNoEscape('grant_type', 'client_credentials');
+        }
+
+
+        var response = r.execute();
+
+        var responseBody = response.getBody();
+        var resp = JSON.parse(responseBody);
+        var access_token = resp.access_token;
+        var new_refresh_token = resp.refresh_token;
+        var expires_in = resp.expires_in;
+        var httpStatus = response.getStatusCode();
+
+
+        gr2.initialize();
+        if (gr2.get('peer.name', name) && gr2.get('type', 'access_token')) {
+            gr2.setValue('token_received', access_token);
+            gr2.setValue('isexpired', 'false');
+            gr2.setValue('expires', new GlideDateTime().addSeconds(expires_in));
+        }
+        if (gr2.get('peer.name', name) && gr2.get('type', 'refresh_token')) {
+            gr2.setValue('token_received', new_refresh_token);
+            gr2.setValue('isexpired', 'false');
+            gr2.setValue('expires', new GlideDateTime().addSeconds(expires_in));
+        }
+        gr2.update();
+        gs.info("access_token : " + access_token + "new_refresh_token : " + refresh_token + "expires_in : " + expires_in);
+
+    },
+    type: 'FirstAdvanatageCallRestV2'
+};]]></script><sys_class_name>sys_script_include</sys_class_name><sys_created_by>admin</sys_created_by><sys_created_on>2019-11-27 09:38:35</sys_created_on><sys_id>67e59dbadb19c0143e146583ca96192c</sys_id><sys_mod_count>5</sys_mod_count><sys_name>FirstAdvanatageCallRestV2</sys_name><sys_package display_value="First Advantage Spoke" source="x_snc_fadv">56e01698dbb333403e146583ca96192d</sys_package><sys_policy>read</sys_policy><sys_scope display_value="First Advantage Spoke">56e01698dbb333403e146583ca96192d</sys_scope><sys_update_name>sys_script_include_67e59dbadb19c0143e146583ca96192c</sys_update_name><sys_updated_by>sheetals</sys_updated_by><sys_updated_on>2019-11-27 14:14:44</sys_updated_on></sys_script_include></record_update>

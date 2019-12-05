@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include"><sys_script_include action="DELETE"><access>public</access><active>true</active><api_name>x_snc_fadv.FirstAdvantageWebhookUtilswithStaging</api_name><caller_access/><client_callable>true</client_callable><description/><name>FirstAdvantageWebhookUtilswithStaging</name><script><![CDATA[var FirstAdvantageWebhookUtilswithStaging = Class.create();
+FirstAdvantageWebhookUtilswithStaging.prototype = Object.extendsObject(global.AbstractAjaxProcessor, {
+	//Validating inputs for Null values.
+	validateInputs: function(key, inputs) {
+		if ((!inputs) && (inputs == '') && (inputs == ""))
+			gs.error("The field " + key + " is null.");
+
+		else
+			return inputs;
+	},
+
+	//Adding into Invite Task Staging Table.
+	processWebhookInvitePayload: function(inputPayload){
+		
+		try {
+			var applicant_id = inputPayload.applicant_id;
+			var invite_url = inputPayload.invite_url;
+			var candidate_id = inputPayload.candidate_id;
+			var application_event = inputPayload.application_event;
+			var application_status = inputPayload.application_status; //not sending ahead
+			var package_id = inputPayload.package_id;
+			var state = 0;
+			var work_notes = '';
+		}
+		catch (err){
+			gs.addErrorMessage('Received incomplete webhook Payload from First Advantage.');
+			throw new Error("Received incomplete webhook Payload from First Advantage.");
+		}
+
+		if(application_status == "Started" && application_event == "Applicant Registered and or Updated")
+			state = 3;
+
+		if(application_status == "Started" && application_event == "Consent Accepted")
+			state = 3;
+		work_notes ="Candidate has started filling the background verification form.";
+
+		if(application_status == "Completed" && application_event == "BI Submitted")
+			state = 4;
+		work_notes = "Candidate has successfully completed the background verification form, hence marking the state as \"complete\".";
+
+		if(application_status == "Completed" && application_event == "Consent Rejected"){
+			state = 5;
+			work_notes = "Candidate has rejected the consent, hence marking the state as \"complete\".";
+		}
+
+		if(application_status == "DealBroken" && application_event == "Consent Rejected"){
+			state = 5;
+			work_notes = "Candidate has rejected the consent, hence marking the state as \"complete-DealBroken\".";
+		}
+
+		var fadvInviteStagingGr = new GlideRecord('x_snc_fadv_invite_staging_table');
+		fadvInviteStagingGr.initialize();
+		fadvInviteStagingGr.setValue('invite_id', applicant_id);
+		fadvInviteStagingGr.setValue('invite_url', invite_url);
+		fadvInviteStagingGr.setValue('candidate_id', candidate_id);
+		fadvInviteStagingGr.setValue('application_event', application_event);
+		fadvInviteStagingGr.setValue('package_id', package_id);
+		fadvInviteStagingGr.setValue('state', state);
+		fadvInviteStagingGr.setValue('work_notes', work_notes);
+		fadvInviteStagingGr.insert();
+
+	},
+	
+	////Adding into Order Staging Table.
+	processWebhookOrderPayload: function(inputPayload) {
+		try{
+			
+			var order_id = inputPayload.order_id;
+			var order_status = inputPayload.order_status;
+			var result_status='';
+			if (inputPayload.result_status)
+				result_status = inputPayload.result_status;
+			var package_id = inputPayload.package_id;
+			var candidate_id = inputPayload.candidate_id;
+			var state=0;
+			var number='';
+		}
+		catch (err){
+			gs.addErrorMessage('Received incomplete webhook Payload from First Advantage.');
+			throw new Error("Received incomplete webhook Payload from First Advantage.");
+		}
+		if (order_status == "InProgress")
+			state = 3;
+		if (order_status == "Complete")
+			state = 4;
+		if (order_status == "Cancelled")
+			state = 5;
+		/*We will ignore order id with CPS */
+
+		if(!order_id.startsWith("CPS")){
+
+			var order_task_number = new GlideRecord('x_snc_fadv_first_advantage_task');
+
+			if(inputPayload.client_reference){
+				var client_reference_from_webhook = inputPayload.client_reference;
+				order_task_number.addQuery('number', client_reference_from_webhook);
+			}
+
+			else{
+				var multiple_client_reference_from_webhook = inputPayload.client_references;
+				if(inputPayload.client_references != '')
+					multiple_client_reference_from_webhook = inputPayload.client_references.join();
+
+				order_task_number.addQuery('number','IN',  multiple_client_reference_from_webhook);
+			}
+			order_task_number.addQuery('candidate_id', candidate_id);
+			order_task_number.query();
+
+			var order_task_order_id = new GlideRecord('x_snc_fadv_first_advantage_task');
+			order_task_order_id.addQuery('order_id', order_id);
+			order_task_order_id.addQuery('candidate_id', candidate_id);
+			order_task_order_id.query();
+			if(order_task_order_id.next()){
+				//gs.info(order1.getValue('order_id'));
+			}
+
+			if (order_task_number.next()) 			
+				number = order_task_number.getValue('number');
+			else if (order_task_order_id.getValue('order_id'))
+				number = order_task_order_id.getValue('number');
+			else 
+				gs.info("Creating new record with Order ID: " + order_id + " in Employee Task Table as no matching Task Number or Order ID found with reference to Webhook Payload.");
+			
+			var fadvOrderStagingGr = new GlideRecord('x_snc_fadv_order_staging_table');
+			fadvOrderStagingGr.initialize();
+			fadvOrderStagingGr.setValue('order_id', order_id);
+			fadvOrderStagingGr.setValue('order_status', order_status);
+			fadvOrderStagingGr.setValue('candidate_id', candidate_id);
+			fadvOrderStagingGr.setValue('result_status', result_status);
+			fadvOrderStagingGr.setValue('state', state);
+			fadvOrderStagingGr.setValue('package_id', package_id);
+			fadvOrderStagingGr.setValue('number', number);
+			fadvOrderStagingGr.insert();
+
+		}
+
+	},
+	type: 'FirstAdvantageWebhookUtilswithStaging'
+});]]></script><sys_class_name>sys_script_include</sys_class_name><sys_created_by>priytam</sys_created_by><sys_created_on>2019-11-20 11:13:44</sys_created_on><sys_id>76f32de0db110cd03e146583ca9619ce</sys_id><sys_mod_count>18</sys_mod_count><sys_name>FirstAdvantageWebhookUtilswithStaging</sys_name><sys_package display_value="First Advantage Spoke" source="x_snc_fadv">56e01698dbb333403e146583ca96192d</sys_package><sys_policy>read</sys_policy><sys_scope display_value="First Advantage Spoke">56e01698dbb333403e146583ca96192d</sys_scope><sys_update_name>sys_script_include_76f32de0db110cd03e146583ca9619ce</sys_update_name><sys_updated_by>anamika</sys_updated_by><sys_updated_on>2019-11-22 06:05:45</sys_updated_on></sys_script_include></record_update>

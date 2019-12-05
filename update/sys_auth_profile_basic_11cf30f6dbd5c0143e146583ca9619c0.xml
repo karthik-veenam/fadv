@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_auth_profile_basic">
+    <sys_auth_profile_basic action="INSERT_OR_UPDATE">
+        <name>FADV Test</name>
+        <password>ixNxOUMUEYYf4L2iOFHzLLBnQq75Edstwe5EQuz4IAYzJE3jVdfE4Q==</password>
+        <sys_class_name>sys_auth_profile_basic</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2019-11-27 07:59:41</sys_created_on>
+        <sys_id>11cf30f6dbd5c0143e146583ca9619c0</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>FADV Test</sys_name>
+        <sys_package display_value="First Advantage Spoke" source="x_snc_fadv">56e01698dbb333403e146583ca96192d</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="First Advantage Spoke">56e01698dbb333403e146583ca96192d</sys_scope>
+        <sys_update_name>sys_auth_profile_basic_11cf30f6dbd5c0143e146583ca9619c0</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2019-11-27 07:59:41</sys_updated_on>
+        <username>2ce613b0bd2b11e9afb402682ddfc999</username>
+    </sys_auth_profile_basic>
+</record_update>

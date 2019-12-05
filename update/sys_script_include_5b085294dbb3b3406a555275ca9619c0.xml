@@ -1,0 +1,719 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>package_private</access>
+        <active>true</active>
+        <api_name>x_snc_fadv.FirstAdvantageSpokeErrorHandler</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description>Error Handler For First Advantage Spoke Actions</description>
+        <name>FirstAdvantageSpokeErrorHandler</name>
+        <script><![CDATA[var FirstAdvantageSpokeErrorHandler = Class.create();
+FirstAdvantageSpokeErrorHandler.prototype = {
+    initialize: function() {},
+    retrieveErrorMessage: function(code) {
+        var errorCodeMsgs = {
+            "unauthorized": "Invalid username or password/token or the token has expired.",
+            "forbidden": "The user does not have sufficient permission to perform this action.",
+
+            // Get Candidate Details
+            "invalid_candidate_id": "Provided Candidate ID is invalid or not found.",
+
+            //Get Order Details Error Message
+            "invalid_order_id": "Provided Order ID is invalid or not found.",
+            "invalid_userid": "Provided User ID is incorrect/invalid or appears to be empty.",
+            "invalid_order_id_user_id": "Either provided Order ID or User ID is invalid/incorrect.",
+
+            //Get Invite Status by Applicant ID Error Message
+            "invalid_applicant_id": "Provided Applicant ID is invalid or not found.",
+
+            //Create Order
+            "invalid_orderaccount": "Either Account ID or User ID under Order As is invalid.",
+            "unsupported_language": "Either Country Code or Language code is invalid or not found.",
+            "invalid_candidate": "Provided Candidate ID is invalid or not found.",
+            "invalid_type_object": "Provided value for one of the inputs is invalid.",
+            "missing_required_field": "Either Candidate ID or Package ID appear to be empty.",
+            "invalid_package": "Provided Package ID is invalid or not found.",
+
+            //Create User/Update User Profile/Update User Password
+            "invalid_account_id": "Provided Account ID is invalid or not found.",
+            "invalid_user_id": "User ID field appears to be empty.",
+            "invalid_email": "Email field appears to be empty.",
+            "invalid_user_id_profile": "Provided User ID is incorrect/invalid.",          
+            "invalid_client_user": "SSO Client User field appears to be empty.",
+            "invalid_client_name": "SSO Client Name field appears to be empty.",
+            "invalid_sso_preference": "SSO preference is not enabled for provided Account.",
+            "invalid_profile": "Provided Profile is invalid or not found.",
+            "invalid_date": "Provided Registration Date is invalid.",
+            "invalid_roles": "Provided Roles are invalid.",
+            "invalid_password": "Provided Password is invalid.",
+            "invalid_old_password": "Provided Password is invalid.",
+            "invalid_password_inuse": "Provided Password has already been used.",
+            "invalid_users": "Either Account ID or User ID is invalid or not found.",
+            "invalid_password_character": "Provided New Password is invalid.",
+            "invalid_new_password": "New Password field appears to be empty.",
+            "invalid_old_pass": "Password field appears to be empty.",
+            "invalid_data": "Provided value for one of the inputs is invalid.",
+            "empty_account": "Account ID field appears to be empty.",
+
+
+            //Create New Candidate
+            "invalid_first_name": "Provided First Name is invalid or not found.",
+            "invalid_last_name": "Provided Last Name is invalid or not found.",
+            "invalid_city": "Provided City is invalid or not found.",
+            "invalid_state": "Provided State is invalid or not found.",
+            "invalid_country": "Provided Country is invalid or not found.",
+            "city_country": "Provided City and Country is invalid or not found.",
+            "state_country": "Provided State and Country is invalid or not found.",
+            "city_state": "Provided City and State is invalid or not found.",
+            "invalid_phones": "Provided Phone number is invalid or not found.",
+            "candidate_conflict": "Candidate with provided details already exist.",
+            "invalid_emailid": "Provided Email is invalid or not found.",
+            "invalid_middle_name": "Provided Middle Name is invalid or not found.",
+            "invalid_maiden_name": "Provided Maiden Name is invalid or not found.",
+            "invalid_suffix": "Provided Suffix is invalid or not found.",
+            "invalid_salutation": "Provided Salutation is invalid or not found.",
+            "invalid_extension": "Provided Extension is invalid or not found.",
+            "invalid_country_code": "Provided Country Code is invalid or not found.",
+
+
+            //Activate/Deactivate User.
+            "activate_user_invalid_user_id": "Provided User ID is invalid or not found.",
+
+            //Invite Management
+            "invalid_position_applied_for": "Provided value for Position Applied For input is invalid.",
+            "invalid_inputs": "Provided value for one or more inputs is invalid.",
+            "invalid_quote_backs": "Provided value for Quote Backs input is invalid.",
+            "invalid_packageid": "Provided value for Package input is invalid.",
+            "invalid_orderas": "Provided value for either Account ID or User ID in Order As input is invalid/incorrect.",
+            "invalid_candidatetype": "Provided value for Candidate Type is incorrect/invalid.",
+            "invalid_notificationurl": "Provided value for Notification URL input is invalid.",
+
+            //Create Monitor Enrollment 
+            "invalid_product": "Provided Product Type is invalid or not found.",
+            "invalid_enrollment": "Provided Candidate ID is already enrolled.",
+            "invalid_group_name": "Provided Group Name is invalid or not found.",
+            "invalid_product_group": "Either Group Name or Product Type field appears to be empty.",
+            "invalid_product_name": "A valid certificate is required to process the Motor Vehicle Record for this state. Please contact your Account Manager or FADV team.",
+
+            //Delete Monitor Enrollment 
+            "invalid_enrollment_id": "Provided Enrollment ID is invalid or not found.",
+
+        };
+        for (var key in errorCodeMsgs) {
+            if (key == code) {
+                return errorCodeMsgs[key];
+            }
+        }
+    },
+
+    genericErrorHandler: function(inputs, outputs) {
+        outputs.status = 'Error';
+        if (inputs.status_code == '401' && (inputs.response.indexOf('No API key or tokens found in headers or querystring') != -1))
+            outputs.error_message = this.retrieveErrorMessage('unauthorized');
+        else if (inputs.status_code == '401' && (inputs.error_message.indexOf('Invalid username/password combo') != -1))
+            outputs.error_message = this.retrieveErrorMessage('unauthorized');
+        else if (inputs.status_code == '403' && (inputs.error_message.indexOf('Forbidden username/password combo') != -1))
+            outputs.error_message = this.retrieveErrorMessage('forbidden');
+
+
+
+        return outputs;
+    },
+
+    //*******************Candidate Management *********************************//
+
+    createNewCandidateErrorHandler: function(inputs, outputs) {
+        outputs.status = 'Error';
+        switch (String(inputs.status_code)) {
+
+            case "400":
+                if ((inputs.response.indexOf('/given_name : JSON payload type (JSON payload) does not match any allowed primitive type (allowed: string). ') != -1) || (inputs.response.indexOf('/given_name : Incorrect value.') != -1))
+                    outputs.error_message = this.retrieveErrorMessage('invalid_first_name');
+                else if ((inputs.response.indexOf('/family_name : JSON payload type (JSON payload) does not match any allowed primitive type (allowed: string). ') != -1) || (inputs.response.indexOf('/family_name : Incorrect value.') != -1))
+                    outputs.error_message = this.retrieveErrorMessage('invalid_last_name');
+                else if ((inputs.response.indexOf('/email : JSON payload type (JSON payload) does not match any allowed primitive type (allowed: string). ') != -1) || (inputs.response.indexOf('/email : Incorrect value.') != -1))
+                    outputs.error_message = this.retrieveErrorMessage('invalid_emailid');
+                else if ((inputs.response.indexOf('JSON payload has missing required properties (number).') != -1) || (inputs.response.indexOf('/number : Incorrect value.') != -1))
+                    outputs.error_message = this.retrieveErrorMessage('invalid_phones');
+                else if ((inputs.response.indexOf('/middle_name : JSON payload type (JSON payload) does not match any allowed primitive type (allowed: string).') != -1))
+                    outputs.error_message = this.retrieveErrorMessage('invalid_middle_name');
+                else if ((inputs.response.indexOf('/maiden_name : JSON payload type (JSON payload) does not match any allowed primitive type (allowed: string).') != -1))
+                    outputs.error_message = this.retrieveErrorMessage('invalid_maiden_name');
+                else if ((inputs.response.indexOf('/suffix : JSON payload type (JSON payload) does not match any allowed primitive type (allowed: string).') != -1))
+                    outputs.error_message = this.retrieveErrorMessage('invalid_suffix');
+                else if ((inputs.response.indexOf('/salutation : JSON payload type (JSON payload) does not match any allowed primitive type (allowed: string).') != -1))
+                    outputs.error_message = this.retrieveErrorMessage('invalid_salutation');
+                break;
+                /*case "409":
+                    if (inputs.response.indexOf('Candidate data conflict.') != -1)
+                        outputs.error_message = this.retrieveErrorMessage('candidate_conflict');
+                    break; */
+            default:
+                this.genericErrorHandler(inputs, outputs);
+        }
+        return outputs;
+    },
+    updateCandidateDetailsErrorHandler: function(inputs, outputs) {
+        outputs.status = 'Error';
+        switch (String(inputs.status_code)) {
+
+            case "400":
+                if ((inputs.response.indexOf('/given_name : JSON payload type (JSON payload) does not match any allowed primitive type (allowed: string). ') != -1) || (inputs.response.indexOf('/given_name : Incorrect value.') != -1))
+                    outputs.error_message = this.retrieveErrorMessage('invalid_first_name');
+                else if ((inputs.response.indexOf('/family_name : JSON payload type (JSON payload) does not match any allowed primitive type (allowed: string). ') != -1) || (inputs.response.indexOf('/family_name : Incorrect value.') != -1))
+                    outputs.error_message = this.retrieveErrorMessage('invalid_last_name');
+                else if ((inputs.response.indexOf('/email : JSON payload type (JSON payload) does not match any allowed primitive type (allowed: string). ') != -1) || (inputs.response.indexOf('/email : Incorrect value.') != -1))
+                    outputs.error_message = this.retrieveErrorMessage('invalid_emailid');
+                else if ((inputs.response.indexOf('JSON payload has missing required properties (number).') != -1) || (inputs.response.indexOf('/number : Incorrect value.') != -1))
+                    outputs.error_message = this.retrieveErrorMessage('invalid_phones');
+                else if ((inputs.response.indexOf('/middle_name : JSON payload type (JSON payload) does not match any allowed primitive type (allowed: string).') != -1))
+                    outputs.error_message = this.retrieveErrorMessage('invalid_middle_name');
+                else if ((inputs.response.indexOf('/maiden_name : JSON payload type (JSON payload) does not match any allowed primitive type (allowed: string).') != -1))
+                    outputs.error_message = this.retrieveErrorMessage('invalid_maiden_name');
+                else if ((inputs.response.indexOf('/suffix : JSON payload type (JSON payload) does not match any allowed primitive type (allowed: string).') != -1))
+                    outputs.error_message = this.retrieveErrorMessage('invalid_suffix');
+                else if ((inputs.response.indexOf('/salutation : JSON payload type (JSON payload) does not match any allowed primitive type (allowed: string).') != -1))
+                    outputs.error_message = this.retrieveErrorMessage('invalid_salutation');
+                else if ((inputs.response.indexOf('/extension : Incorrect value.') != -1))
+                    outputs.error_message = this.retrieveErrorMessage('invalid_extension');
+                else if ((inputs.response.indexOf('/country_code : Incorrect value.') != -1))
+                    outputs.error_message = this.retrieveErrorMessage('invalid_country_code');
+                break;
+            case "404":
+                if ((inputs.response.indexOf('Candidate id not found.') != -1))
+                    outputs.error_message = this.retrieveErrorMessage('invalid_candidate');
+                else if ((inputs.response.indexOf('Resource not found.') != -1))
+                    outputs.error_message = this.retrieveErrorMessage('invalid_candidate');
+                break;
+            case "405":
+                if ((inputs.response.indexOf('Method not allowed.') != -1))
+                    outputs.error_message = this.retrieveErrorMessage('invalid_candidate');
+                break;
+            case "409":
+                if (inputs.response.indexOf('Different candidate already exist for the given email and primary phone number.') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('candidate_conflict');
+                break;
+
+            default:
+                this.genericErrorHandler(inputs, outputs);
+        }
+        return outputs;
+    },
+    getCandidateDetailsErrorHandler: function(inputs, outputs) {
+        outputs.status = 'Error';
+        switch (String(inputs.status_code)) {
+
+            case "404":
+                if ((inputs.response.indexOf('Candidate id not found.') != -1) || (inputs.response.indexOf('Resource not found.') != -1))
+                    outputs.error_message = this.retrieveErrorMessage('invalid_candidate_id');
+                break;
+            case "405":
+                if (inputs.response.indexOf('Method not allowed.') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_candidate_id');
+                break;
+            default:
+                this.genericErrorHandler(inputs, outputs);
+        }
+        return outputs;
+    },
+
+    getDocumentsforaSpecificCandidateErrorHandler: function(inputs, outputs) {
+        outputs.status = 'Error';
+        switch (String(inputs.status_code)) {
+
+            case "404":
+                if ((inputs.response.indexOf('Candidate id not found.') != -1) || (inputs.response.indexOf('Resource not found.') != -1))
+                    outputs.error_message = this.retrieveErrorMessage('invalid_candidate_id');
+                break;
+            case "405":
+                if (inputs.response.indexOf('Method not allowed.') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_candidate_id');
+                break;
+            default:
+                this.genericErrorHandler(inputs, outputs);
+        }
+        return outputs;
+    },
+
+    attachDocumentsforaSpecificCandidateErrorHandler: function(inputs, outputs) {
+        outputs.status = 'Error';
+        switch (String(inputs.status_code)) {
+
+            case "404":
+                if ((inputs.response.indexOf('Candidate id not found.') != -1) || (inputs.response.indexOf('Resource not found.') != -1))
+                    outputs.error_message = this.retrieveErrorMessage('invalid_candidate_id');
+                break;
+            case "405":
+                if (inputs.response.indexOf('Method not allowed.') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_candidate_id');
+                break;
+            default:
+                this.genericErrorHandler(inputs, outputs);
+        }
+        return outputs;
+    },
+
+    getMonitoringProductDetailsForaSpecificCandidateErrorHandler: function(inputs, outputs) {
+        outputs.status = 'Error';
+        switch (String(inputs.status_code)) {
+
+            case "404":
+                if ((inputs.response.indexOf('Candidate id not found.') != -1) || (inputs.response.indexOf('Resource not found.') != -1))
+                    outputs.error_message = this.retrieveErrorMessage('invalid_candidate_id');
+                break;
+            case "405":
+                if (inputs.response.indexOf('Method not allowed.') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_candidate_id');
+                break;
+            default:
+                this.genericErrorHandler(inputs, outputs);
+        }
+        return outputs;
+    },
+
+    //*******************Invite Management *********************************//
+    getInviteViewLinkByApplicationIdErrorHandler: function(inputs, outputs) {
+        outputs.status = 'Error';
+        switch (String(inputs.status_code)) {
+            case "404":
+                if ((inputs.response.indexOf('Applicant Id does not exist.') != -1) || (inputs.response.indexOf('Resource not found.') != -1))
+                    outputs.error_message = this.retrieveErrorMessage('invalid_applicant_id');
+                break;
+            case "405":
+                if (inputs.response.indexOf('Method not allowed.') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_applicant_id');
+                break;
+            default:
+                this.genericErrorHandler(inputs, outputs);
+        }
+        return outputs;
+    },
+
+    getInviteStatusByApplicantIdErrorHandler: function(inputs, outputs) {
+        outputs.status = 'Error';
+        switch (String(inputs.status_code)) {
+
+            case "404":
+                if ((inputs.response.indexOf('Applicant Id does not exist.') != -1) || (inputs.response.indexOf('Resource not found.') != -1) || (inputs.response.indexOf('error') != -1))
+                    outputs.error_message = this.retrieveErrorMessage('invalid_applicant_id');
+                break;
+            case "405":
+                if (inputs.response.indexOf('Method not allowed.') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_applicant_id');
+                break;
+            default:
+                this.genericErrorHandler(inputs, outputs);
+        }
+        return outputs;
+    },
+    createInviteErrorHandler: function(inputs, outputs) {
+        outputs.status = 'Error';
+        switch (String(inputs.status_code)) {
+            case "400":
+                if ((inputs.response.indexOf('candidate_id') != -1))
+                    outputs.error_message = this.retrieveErrorMessage('invalid_candidate_id');
+                else if ((inputs.response.indexOf('JSON payload has missing required properties (package_id)') != -1))
+                    outputs.error_message = this.retrieveErrorMessage('invalid_packageid');
+                else if ((inputs.response.indexOf('position_applied_for : JSON payload type (JSON payload) does not match') != -1))
+                    outputs.error_message = this.retrieveErrorMessage('invalid_position_applied_for');
+                else if ((inputs.response.indexOf('quote_backs') != -1) && (inputs.response.indexOf('JSON payload has missing required properties') != -1))
+                    outputs.error_message = this.retrieveErrorMessage('invalid_quote_backs');
+                else if (inputs.response.indexOf('/candidate_type : JSON payload type') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_candidatetype');
+                else if (inputs.response.indexOf('/notification_url : JSON payload type') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_notificationurl');
+                else
+                    this.genericErrorHandler(inputs, outputs);
+                break;
+            case "403":
+                if (inputs.response.indexOf('Error occurred while processing your request') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_inputs');
+                else if (inputs.response.indexOf('BackgroundSearchPackageId is a 4 digit report code') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_packageid');
+                else if (inputs.response.indexOf("Invalid 'OrderAccount") != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_orderas');
+                else if (inputs.response.indexOf("does not match a candidate type.") != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_candidatetype');
+                else
+                    this.genericErrorHandler(inputs, outputs);
+                break;
+            case "404":
+                if ((inputs.response.indexOf('Candidate not found') != -1))
+                    outputs.error_message = this.retrieveErrorMessage('invalid_candidate_id');
+                break;
+            case "500":
+                if ((inputs.response.indexOf('Internal server error') != -1))
+                    outputs.error_message = this.retrieveErrorMessage('invalid_candidate_id');
+                else
+                    this.genericErrorHandler(inputs, outputs);
+                break;
+            default:
+                this.genericErrorHandler(inputs, outputs);
+        }
+        return outputs;
+    },
+    //******************** Order management*************************
+    createOrderErrorHandler: function(inputs, outputs) {
+        outputs.status = 'Error';
+        switch (String(inputs.status_code)) {
+
+            case "404":
+                if (inputs.response.indexOf('Candidate not found') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_candidate');
+
+                if (inputs.response.indexOf('Invalid package') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_package');
+                break;
+
+            case "400":
+                if (inputs.response.indexOf('Missing required field') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('missing_required_field');
+                if (inputs.response.indexOf('candidate_id') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_candidate');
+                if (inputs.response.indexOf('Error validating JSON. Error:') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_type_object');
+                break;
+
+            case "403":
+                if (inputs.response.indexOf('Invalid \'OrderAccount\'') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_orderaccount');
+                break;
+
+            case "500":
+                if (inputs.response.indexOf('The following language is not supported') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('unsupported_language');
+
+                if (inputs.response.indexOf('Internal server error. Please try after sometime.') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_candidate');
+                break;
+
+            default:
+                this.genericErrorHandler(inputs, outputs);
+        }
+
+        return outputs;
+    },
+
+    getOrderDetailsErrorHandler: function(inputs, outputs) {
+        outputs.status = 'Error';
+        switch (String(inputs.status_code)) {
+
+            case "404":
+                if ((inputs.response.indexOf('Case ID is invalid') != -1) || (inputs.response.indexOf('Resource not found.') != -1))
+                    outputs.error_message = this.retrieveErrorMessage('invalid_order_id');
+                break;
+            case "405":
+                if (inputs.response.indexOf('Method not allowed.') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_order_id');
+                break;
+            case "200":
+                if (inputs.status_code == '200' && (inputs.response.indexOf('CPStatusRequest userId="REST"') != -1))
+                    outputs.error_message = this.retrieveErrorMessage('invalid_order_id');
+                break;
+
+            default:
+                this.genericErrorHandler(inputs, outputs);
+        }
+        return outputs;
+    },
+
+
+    getOrderReportByOrderID: function(inputs, outputs) {
+        outputs.status = 'Error';
+        switch (String(inputs.status_code)) {
+
+            case "200":
+                var url = JSON.parse(inputs.response).screening_results_url;
+                //    if (!url)
+                outputs.error_message = this.retrieveErrorMessage('invalid_order_id_user_id');
+                break;
+            case "401":
+                if (inputs.response.indexOf('Invalid login') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_userid');
+                else
+                    this.genericErrorHandler(inputs, outputs);
+                break;
+            case "404":
+                if (inputs.response.indexOf('Resource not found') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_order_id_user_id');
+                break;
+            case "405":
+                if (inputs.response.indexOf('Method not allowed') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_order_id_user_id');
+                break;
+            default:
+                this.genericErrorHandler(inputs, outputs);
+        }
+    },
+
+    createOrderAdjudicateErrorHandler: function(inputs, outputs) {
+        outputs.status = 'Error';
+        switch (String(inputs.status_code)) {
+
+            case "404":
+                if ((inputs.response.indexOf('Case ID is invalid') != -1) || (inputs.response.indexOf('Resource not found.') != -1))
+                    outputs.error_message = this.retrieveErrorMessage('invalid_order_id');
+                break;
+            case "405":
+                if (inputs.response.indexOf('Method not allowed.') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_order_id');
+                break;
+            default:
+                this.genericErrorHandler(inputs, outputs);
+        }
+        return outputs;
+    },
+
+    //*******************User Management*********************************//
+
+    createUserErrorHandler: function(inputs, outputs) {
+        outputs.status = 'Error';
+        switch (String(inputs.status_code)) {
+
+            case "500":
+                if (inputs.response.indexOf('Unexpected error during processing the request') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_account_id');
+                break;
+            case "400":
+                if (inputs.response.indexOf('Invalid account') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_account_id');
+                else if (inputs.response.indexOf('User id is required') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_user_id');
+                else if (inputs.response.indexOf('ClientUsername property is required.') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_client_user');
+                else if (inputs.response.indexOf('SSO ClientId property is required.') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_client_name');
+                else if (inputs.response.indexOf('does not have SSO preference enabled.') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_sso_preference');
+                else if (inputs.response.indexOf('Invalid profile') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_profile');
+                else if (inputs.response.indexOf('InvalidFormatException') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_date');
+                else if (inputs.response.indexOf('JsonMappingException') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_roles');
+                else if (inputs.response.indexOf('Invalid password') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_password');
+                else if (inputs.response.indexOf('Unexpected character') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_data');
+                else if (inputs.response.indexOf('Account is required.') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('empty_account');
+
+                break;
+            case "404":
+                if (inputs.response.indexOf('Email is required') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_email');
+                else if (inputs.response.indexOf('Given name is required') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_First_Name');
+                else if (inputs.response.indexOf('Phone is required') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_Phone');
+                else if (inputs.response.indexOf('"Family name is required') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_Last_Name');
+
+                break;
+
+            default:
+                this.genericErrorHandler(inputs, outputs);
+        }
+        return outputs;
+    },
+
+    updateUserProfileErrorHandler: function(inputs, outputs) {
+        outputs.status = 'Error';
+        switch (String(inputs.status_code)) {
+
+            case "500":
+                if (inputs.response.indexOf('Unexpected error during processing the request') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_account_id');
+                break;
+
+            case "400":
+                if ((inputs.response.indexOf('Account is required') != -1) || (inputs.response.indexOf('Invalid account') != -1))
+                    outputs.error_message = this.retrieveErrorMessage('invalid_account_id');
+                else if (inputs.response.indexOf('User id is required') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_user_id');
+                else if (inputs.response.indexOf('ClientUsername property is required.') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_client_user');
+                else if (inputs.response.indexOf('SSO ClientId property is required.') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_client_name');
+                else if (inputs.response.indexOf('does not have SSO preference enabled.') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_sso_preference');
+                else if (inputs.response.indexOf('InvalidFormatException') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_date');
+                else if (inputs.response.indexOf('Invalid profile') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_profile');
+                else if (inputs.response.indexOf('JsonMappingException') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_roles');
+                break;
+            case "404":
+                if (inputs.response.indexOf('Email is required') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_user_id_profile');
+                else if (inputs.response.indexOf('Given name is required') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_user_id_profile');
+                else if (inputs.response.indexOf('Family name is required') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_user_id_profile');
+                else if (inputs.response.indexOf('Phone is required') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_user_id_profile');
+
+                break;
+            case "502":
+                if (inputs.response.indexOf('An invalid response was received from the upstream server') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_data');
+                break;
+            default:
+                this.genericErrorHandler(inputs, outputs);
+        }
+        return outputs;
+    },
+
+    updateUserPasswordErrorHandler: function(inputs, outputs) {
+        outputs.status = 'Error';
+        switch (String(inputs.status_code)) {
+
+
+            case "400":
+                if ((inputs.response.indexOf('Account is required') != -1))
+                    outputs.error_message = this.retrieveErrorMessage('empty_account');
+                else if (inputs.response.indexOf('User id is required') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_user_id');
+                else if (inputs.response.indexOf('Invalid account/userid') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_users');
+                else if (inputs.response.indexOf('Invalid old password') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_old_password');
+                else if (inputs.response.indexOf('That password has already been used.') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_password_inuse');
+                else if ((inputs.response.indexOf('Password must be at least 8 characters.') != -1) || (inputs.response.indexOf('Password must contain 3 of 4 characters sets.') != -1))
+                    outputs.error_message = this.retrieveErrorMessage('invalid_password_character');
+                else if (inputs.response.indexOf('New Password is required.') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_new_password');
+                else if (inputs.response.indexOf('Password is required.') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_old_pass');
+                else if (inputs.response.indexOf('Password can only contain a-z, A-Z, 0-9, and !@#%^..') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_password');
+                else if ((inputs.response.indexOf(' Illegal unquoted character') != -1) || (inputs.response.indexOf(' Unexpected character') != -1))
+                    outputs.error_message = this.retrieveErrorMessage('invalid_users');
+                break;
+
+            case "500":
+                if (inputs.response.indexOf('Unexpected error during processing the request') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_account_id');
+                break;
+            default:
+                this.genericErrorHandler(inputs, outputs);
+        }
+        return outputs;
+    },
+
+
+    //Common function for activate and deactivate user.
+    activateDeactivateUserErrorHandler: function(inputs, outputs) {
+        outputs.status = 'Error';
+
+        switch (String(inputs.status_code)) {
+
+            case "400":
+                outputs.error_message = this.retrieveErrorMessage('activate_user_invalid_user_id');
+                break;
+
+            case "404":
+                outputs.error_message = this.retrieveErrorMessage('activate_user_invalid_user_id');
+                break;
+
+            default:
+                this.genericErrorHandler(inputs, outputs);
+        }
+        return outputs;
+    },
+
+    //Account management error handlers.
+    getAccountDetailsByAccountID: function(inputs, outputs) {
+        switch (String(inputs.status_code)) {
+            case "500":
+                if (inputs.response.indexOf('Unexpected error during processing the request') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_account_id');
+
+                if (inputs.response.indexOf('details (org.mule.module.apikit.exception.NotFoundException)') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_account_id');
+
+                break;
+
+            case "404":
+                if ((JSON.parse(inputs.response)).length == 0)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_account_id');
+
+                break;
+
+        }
+    },
+    //Create Monitor Enrollment 
+    createMonitorEnrollment: function(inputs, outputs) {
+        outputs.status = 'Error';
+
+        switch (String(inputs.status_code)) {
+
+            case "404":
+                if (inputs.response.indexOf('product type not found') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_product');
+                break;
+            case "400":
+                if (inputs.response.indexOf('Bad request') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_product_group');
+                else if (inputs.response.indexOf('Unable to find the monitor subject group for the name') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_group_name');
+                else if (inputs.response.indexOf('A valid certificate is required to process the Motor Vehicle Record for this state. Please contact your Account  Manager or our Customer Service Department.') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_product_name');
+                break;
+            case "409":
+                if (inputs.response.indexOf('FAILURE') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_enrollment');
+                break;
+
+            default:
+                this.genericErrorHandler(inputs, outputs);
+        }
+        return outputs;
+    },
+
+    // Delete Monitor Enrollment 
+
+    deleteMonitorEnrollmentErrorHandler: function(inputs, outputs) {
+        outputs.status = 'Error';
+        switch (String(inputs.status_code)) {
+
+            case "400":
+                if ((inputs.response.indexOf('FAILURE') != -1) || (inputs.response.indexOf('Unable to find subject for the given enrollment id') != -1))
+                    outputs.error_message = this.retrieveErrorMessage('invalid_enrollment_id');
+                break;
+            case "404":
+                if (inputs.response.indexOf('Resource not found.') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_enrollment_id');
+                break;
+            case "405":
+                if (inputs.response.indexOf('Method not allowed.') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_enrollment_id');
+                break;
+            case "500":
+                if (inputs.response.indexOf('Internal server error') != -1)
+                    outputs.error_message = this.retrieveErrorMessage('invalid_enrollment_id');
+                break;
+            default:
+                this.genericErrorHandler(inputs, outputs);
+        }
+        return outputs;
+    },
+
+    type: 'FirstAdvantageSpokeErrorHandler'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>mohammadik</sys_created_by>
+        <sys_created_on>2019-09-06 06:26:09</sys_created_on>
+        <sys_id>5b085294dbb3b3406a555275ca9619c0</sys_id>
+        <sys_mod_count>296</sys_mod_count>
+        <sys_name>FirstAdvantageSpokeErrorHandler</sys_name>
+        <sys_package display_value="First Advantage Spoke" source="x_snc_fadv">56e01698dbb333403e146583ca96192d</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="First Advantage Spoke">56e01698dbb333403e146583ca96192d</sys_scope>
+        <sys_update_name>sys_script_include_5b085294dbb3b3406a555275ca9619c0</sys_update_name>
+        <sys_updated_by>sheetals</sys_updated_by>
+        <sys_updated_on>2019-11-01 13:10:27</sys_updated_on>
+    </sys_script_include>
+</record_update>

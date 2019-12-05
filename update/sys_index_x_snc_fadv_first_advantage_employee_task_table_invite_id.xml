@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_index">
+    <sys_index action="INSERT_OR_UPDATE">
+        <col_name_string>invite_id</col_name_string>
+        <index_col_name element="invite_id" name="x_snc_fadv_first_advantage_employee_task_table">1e3bad6fdbe8cc506a555275ca96195a</index_col_name>
+        <logical_table_name>x_snc_fadv_first_advantage_employee_task_table</logical_table_name>
+        <sys_class_name>sys_index</sys_class_name>
+        <sys_created_by>system</sys_created_by>
+        <sys_created_on>2019-11-20 11:34:19</sys_created_on>
+        <sys_id>99fd2520db510cd03e146583ca961973</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>x_snc_fadv_first_advantage_employee_task_table</sys_name>
+        <sys_package display_value="First Advantage Spoke" source="x_snc_fadv">56e01698dbb333403e146583ca96192d</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="First Advantage Spoke">56e01698dbb333403e146583ca96192d</sys_scope>
+        <sys_update_name>sys_index_x_snc_fadv_first_advantage_employee_task_table_invite_id</sys_update_name>
+        <sys_updated_by>system</sys_updated_by>
+        <sys_updated_on>2019-11-20 11:34:19</sys_updated_on>
+        <table display_value="First Advantage Employee Task" name="x_snc_fadv_first_advantage_employee_task_table">f80ba96fdbe8cc506a555275ca9619d8</table>
+        <unique_index>true</unique_index>
+    </sys_index>
+</record_update>

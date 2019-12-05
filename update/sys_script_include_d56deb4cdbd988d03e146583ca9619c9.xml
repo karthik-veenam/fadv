@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>package_private</access>
+        <active>true</active>
+        <api_name>x_snc_fadv.FirstAdvatageSpokePackageRetrievalUtil</api_name>
+        <caller_access/>
+        <client_callable>true</client_callable>
+        <description/>
+        <name>FirstAdvatageSpokePackageRetrievalUtil</name>
+        <script><![CDATA[var FirstAdvatageSpokePackageRetrievalUtil = Class.create();
+FirstAdvatageSpokePackageRetrievalUtil.prototype = Object.extendsObject(global.AbstractAjaxProcessor, {
+    callSubflow: function() {
+        var outputs = sn_fd.FlowAPI.executeSubflow('x_snc_fadv.get_packages');
+        var packagedetails = outputs.package_details.data;
+
+        var importSetNumber = this._createImportSetRun();
+
+        for (var key in packagedetails) {
+            var fadvPackageStaggingGr = new GlideRecord('x_snc_fadv_fadv_packages_stagging_table');
+            fadvPackageStaggingGr.initialize();
+            fadvPackageStaggingGr.setValue('package_id', packagedetails[key].name);
+            fadvPackageStaggingGr.setValue('package_name', packagedetails[key].label);
+            fadvPackageStaggingGr.setValue('sys_import_set', importSetNumber);
+            fadvPackageStaggingGr.insert();
+        }
+
+        this._setStateToLoaded(importSetNumber);
+        gs.addInfoMessage("Package List Updated. Kindly Refresh the page.");
+
+        
+    },
+
+
+    _createImportSetRun: function() {
+        var importSetGR = new GlideRecord("sys_import_set");
+        importSetGR.initialize();
+        importSetGR.setValue("mode", "asynchronous");
+        importSetGR.setValue("state", "loading");
+        importSetGR.setValue("table_name", "x_snc_fadv_fadv_packages_stagging_table");
+        return importSetGR.insert();
+
+    },
+
+    _setStateToLoaded: function(importSetSysId) {
+        var importSetGR = new GlideRecord("sys_import_set");
+        if (importSetGR.get(importSetSysId)) {
+            importSetGR.setValue("state", "loaded");
+            importSetGR.update();
+            this._transformImportSet(importSetSysId);
+        }
+    },
+
+    _transformImportSet: function(importSetSysId) {
+        gs.info("Invoking transformation for import set " + importSetSysId);
+        if (!importSetSysId)
+            return;
+        var importSetGr = new GlideRecord("sys_import_set");
+        if (importSetGr.get(importSetSysId)) {
+            var importSetRun = new GlideImportSetRun(importSetSysId);
+            var importLog = new GlideImportLog(importSetRun, "HR Integrations Transform");
+            var ist = new GlideImportSetTransformer();
+            ist.setLogger(importLog);
+            ist.setImportSetRun(importSetRun);
+            ist.setImportSetID(importSetGr);
+            ist.setSyncImport(true);
+            ist.transformAllMaps(importSetGr);
+            gs.info("Completed transformation for import set " + importSetSysId);
+        }
+    },
+
+    type: 'FirstAdvatageSpokePackageRetrievalUtil'
+});]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>sheetals</sys_created_by>
+        <sys_created_on>2019-11-19 07:47:00</sys_created_on>
+        <sys_id>d56deb4cdbd988d03e146583ca9619c9</sys_id>
+        <sys_mod_count>40</sys_mod_count>
+        <sys_name>FirstAdvatageSpokePackageRetrievalUtil</sys_name>
+        <sys_package display_value="First Advantage Spoke" source="x_snc_fadv">56e01698dbb333403e146583ca96192d</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="First Advantage Spoke">56e01698dbb333403e146583ca96192d</sys_scope>
+        <sys_update_name>sys_script_include_d56deb4cdbd988d03e146583ca9619c9</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2019-11-25 11:15:43</sys_updated_on>
+    </sys_script_include>
+</record_update>

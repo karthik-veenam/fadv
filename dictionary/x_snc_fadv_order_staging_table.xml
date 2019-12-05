@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?><database>
+    <element extends="sys_import_set_row" label="FADV Order Staging Table" max_length="40" name="x_snc_fadv_order_staging_table" type="collection">
+        <element label="Candidate ID" max_length="40" name="candidate_id" type="string"/>
+        <element default="single" label="Client Reference " max_length="40" name="client_reference_is_single_or_mulitple" type="string"/>
+        <element label="Event" max_length="100" name="event" type="string"/>
+        <element label="Number" max_length="40" name="number" type="string"/>
+        <element label="Order ID" max_length="40" name="order_id" type="string"/>
+        <element label="Order Status" max_length="40" name="order_status" type="string"/>
+        <element label="Package ID" max_length="40" name="package_id" type="string"/>
+        <element label="Result Status" max_length="40" name="result_status" type="string"/>
+        <element label="State" max_length="40" name="state" type="integer"/>
+    </element>
+</database>

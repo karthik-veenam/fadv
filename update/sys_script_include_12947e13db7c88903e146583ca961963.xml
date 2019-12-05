@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>public</access>
+        <active>true</active>
+        <api_name>x_snc_fadv.FirstAdvantageSpokeActionUtils</api_name>
+        <caller_access/>
+        <client_callable>true</client_callable>
+        <description/>
+        <name>FirstAdvantageSpokeActionUtils</name>
+        <script><![CDATA[var FirstAdvantageSpokeActionUtils = Class.create();
+FirstAdvantageSpokeActionUtils.prototype = Object.extendsObject(global.AbstractAjaxProcessor, {
+	
+	getPackagesFromPackageTable : function(){
+		var gr = new GlideRecord('x_snc_fadv_packages');
+		gr.query();
+		var package_details = {};
+		package_details.data = [];
+		while(gr.next()){		
+			package_details.data.push(
+				{
+				package_name : gr.getValue('package_name'),
+				package_id : gr.getValue('package_id'),
+				active : gr.getValue('active')
+				}
+			);
+		}
+		return JSON.stringify(package_details);	
+		
+	},
+    getDistributionEmail: function() {
+        var ds_email = this.getParameter('sysparm_u_distribution_email');
+        var return_email;
+
+        try {
+
+            var or = new GlideRecord('connection_attributes');
+            or.addQuery('element', ds_email);
+            or.query();
+            if (or.next()) {
+                var email = or.getValue('default_value');
+                if (email == '') {
+                    return_email = "Distribution Email is empty.Please set it in Connection attributes.";
+                } else {
+                    return_email = email;
+                }
+
+            } else {
+                return_email = "Distribution Email is empty.Please set it in Connection attributes.";
+            }
+
+        } catch (ex) {
+            var message = ex.getMessage();
+            gs.error(message);
+        }
+        return return_email;
+
+    },
+    type: 'FirstAdvantageSpokeActionUtils'
+});]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>priytam</sys_created_by>
+        <sys_created_on>2019-11-04 09:31:39</sys_created_on>
+        <sys_id>12947e13db7c88903e146583ca961963</sys_id>
+        <sys_mod_count>33</sys_mod_count>
+        <sys_name>FirstAdvantageSpokeActionUtils</sys_name>
+        <sys_package display_value="First Advantage Spoke" source="x_snc_fadv">56e01698dbb333403e146583ca96192d</sys_package>
+        <sys_policy>read</sys_policy>
+        <sys_scope display_value="First Advantage Spoke">56e01698dbb333403e146583ca96192d</sys_scope>
+        <sys_update_name>sys_script_include_12947e13db7c88903e146583ca961963</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2019-11-25 11:07:59</sys_updated_on>
+    </sys_script_include>
+</record_update>

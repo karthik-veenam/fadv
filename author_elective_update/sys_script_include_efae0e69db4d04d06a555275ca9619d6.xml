@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include"><sys_script_include action="DELETE"><access>package_private</access><active>true</active><api_name>x_snc_fadv.FirstAdvantageSpokeWebhookUtils</api_name><caller_access/><client_callable>false</client_callable><description>First Advantage Spoke Webhook Utils</description><name>FirstAdvantageSpokeWebhookUtils</name><script><![CDATA[var FirstAdvantageSpokeWebhookUtils = Class.create();
+FirstAdvantageSpokeWebhookUtils.prototype = {
+	initialize: function() {
+	},
+
+	//Validating inputs for Null values.
+	validateInputs: function(key, inputs) {
+		if ((!inputs) && (inputs == '') && (inputs == ""))
+			gs.error("The field " + key + " is null.");
+
+		else
+			return inputs;
+	},
+
+	//Querying Employee Task Table.
+	queryEmployeeTaskTable: function(inputPayload){
+
+		var applicant_id = inputPayload.applicant_id;
+		var invite_status = inputPayload.invite_status;
+		var invite_url = inputPayload.invite_url;
+		var package_id = inputPayload.package_id;
+		var candidate_id = inputPayload.candidate_id;
+		var application_event = inputPayload.application_event;
+		var application_status = inputPayload.application_status;
+
+		var invite = new GlideRecord('x_snc_fadv_first_advantage_employee_task_table');
+		invite.addQuery('candidate_id', candidate_id);
+		invite.addQuery('invite_id', applicant_id);
+		invite.query();
+
+
+		var order_client_references = new GlideRecord('x_snc_fadv_first_advantage_task');
+		order_client_references.addQuery('number','IN', inputPayload.client_references);
+		order_client_references.query();
+
+		if(invite.next()){
+			gs.info("updating");
+			if(invite.getValue('invite_status') != invite_status){
+				invite.invite_status = invite_status;
+				invite.invite_url = invite_url;
+
+				if(!invite.getValue('parent_task')){
+
+					if(order_client_references.next())
+						invite.parent_task = order_client_references.getValue('number');
+
+				}
+
+				invite.application_event = application_event;
+
+				if(application_status == "Started" && application_event == "Applicant Registered and or Updated")
+					invite.state = 3;
+
+				if(application_status == "Started" && application_event == "Consent Accepted")
+					invite.state = 3;
+
+				if(application_status == "Completed" && application_event == "BI Submitted")
+					invite.state = 4;
+
+				if(application_status == "Completed" && application_event == "Consent Rejected"){
+					invite.state = 5;
+					invite.work_notes = "Candidate has rejected the consent, hence marking the state as \"complete\"";
+				}
+
+				if(application_status == "DealBroken" && application_event == "Consent Rejected"){
+					invite.state = 5;
+					invite.work_notes = "Candidate has rejected the consent, hence marking the state as \"complete-DealBroken\"";
+				}
+
+				invite.update();
+			}
+		}
+
+		else{
+			gs.info("Creating new First Advantage Employee Task record.");
+			invite.initialize();
+			invite.invite_id = applicant_id;
+			invite.candidate_id = candidate_id;
+			invite.invite_status = invite_status; 
+			invite.invite_url = invite_url;
+
+			//invite.parent_task = inputPayload.client_references.toString();
+
+			if(order_client_references.next())
+				invite.parent_task = order_client_references.getValue('number');
+
+			invite.application_event = application_event;
+
+			if(application_status == "Started" && application_event == "Applicant Registered and or Updated")
+				invite.state = 3;
+
+			if(application_status == "Started" && application_event == "Consent Accepted")
+				invite.state = 3;
+
+			if(application_status == "Completed" && application_event == "BI Submitted")
+				invite.state = 4;
+
+			if(application_status == "Completed" && application_event == "Consent Rejected"){
+				invite.state = 5;
+				invite.work_notes = "Candidate has rejected the consent, hence marking the state as \"complete\"";
+			}
+
+			if(application_status == "DealBroken" && application_event == "Consent Rejected"){
+				invite.state = 5;
+				invite.work_notes = "Candidate has rejected the consent, hence marking the state as \"complete-DealBroken\"";
+			}
+
+			invite.insert();
+		}
+	},
+
+	//Querying Task Table.
+	queryTaskTable: function(inputPayload) {
+
+		var order_id = inputPayload.order_id;
+		var order_status = inputPayload.order_status;
+		var result_status = inputPayload.result_status;
+		var package_id = inputPayload.package_id;
+		var candidate_id = inputPayload.candidate_id;
+		
+		if(!order_id.startsWith("CPS")){
+
+			var order_client_references = new GlideRecord('x_snc_fadv_first_advantage_task');
+
+			if(inputPayload.client_reference){
+				var client_reference = inputPayload.client_reference;
+				order_client_references.addQuery('number', client_reference);
+			}
+
+			else{
+				var client_references = inputPayload.client_references;
+				if(inputPayload.client_references != '')
+					client_references = inputPayload.client_references.join();
+				
+				order_client_references.addQuery('number','IN', client_references);
+			}
+
+			order_client_references.query();
+
+			var order_order_id = new GlideRecord('x_snc_fadv_first_advantage_task');
+			order_order_id.addQuery('order_id', order_id);
+			order_order_id.query();
+			if(order_order_id.next()){
+				//gs.info(order1.getValue('order_id'));
+			}
+
+			if (order_client_references.next()) {
+				
+				order_client_references.addQuery('candidate_id', candidate_id);
+				order_client_references.query();
+
+				if(order_client_references.next()){
+
+					gs.info("Updating old record with Task ID: " + order_client_references.getValue('number'));
+
+					order_client_references.order_status = order_status;
+					if(result_status)
+						order_client_references.result_status = result_status;
+
+					if (order_status == "InProgress")
+						order_client_references.state = 3;
+					if (order_status == "Complete")
+						order_client_references.state = 4;
+					if (order_status == "Cancelled")
+						order_client_references.state = 5;
+					order_client_references.update();
+
+				}
+			}
+
+			else if (order_order_id.getValue('order_id')){
+				gs.info("Updating old record with Task ID: " + order_order_id.getValue('number'));
+				order_order_id.order_status = order_status;
+
+				if(result_status)
+					order_order_id.result_status = result_status;
+
+				if (order_status == "InProgress")
+					order_order_id.state = 3;
+				if (order_status == "Complete")
+					order_order_id.state = 4;
+				if (order_status == "Cancelled")
+					order_order_id.state = 5;
+				order_order_id.update();
+			}
+
+			else {
+				gs.info("Creating new record as no matching record found with the provided client reference in the flow or order id was not found.");
+				order_client_references.initialize();
+				order_client_references.order_id = order_id;
+				order_client_references.candidate_id = candidate_id;
+				order_client_references.package_id = package_id;
+				order_client_references.order_status = order_status;
+				order_client_references.result_status = result_status;
+
+				if (order_status == "InProgress")
+					order_client_references.state = 3;
+				if (order_status == "Complete")
+					order_client_references.state = 4;
+				if (order_status == "Cancelled")
+					order_client_references.state = 5;
+				order_client_references.insert();
+
+			}
+		}
+
+	},
+
+	type: 'FirstAdvantageSpokeWebhookUtils'
+};
+]]></script><sys_class_name>sys_script_include</sys_class_name><sys_created_by>anamika</sys_created_by><sys_created_on>2019-11-11 06:36:32</sys_created_on><sys_id>efae0e69db4d04d06a555275ca9619d6</sys_id><sys_mod_count>161</sys_mod_count><sys_name>FirstAdvantageSpokeWebhookUtils</sys_name><sys_package display_value="First Advantage Spoke" source="x_snc_fadv">56e01698dbb333403e146583ca96192d</sys_package><sys_policy/><sys_scope display_value="First Advantage Spoke">56e01698dbb333403e146583ca96192d</sys_scope><sys_update_name>sys_script_include_efae0e69db4d04d06a555275ca9619d6</sys_update_name><sys_updated_by>anamika</sys_updated_by><sys_updated_on>2019-11-19 13:48:29</sys_updated_on></sys_script_include></record_update>
