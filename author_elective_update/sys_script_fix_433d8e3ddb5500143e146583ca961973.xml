@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_fix"><sys_script_fix action="DELETE"><active>true</active><before>false</before><description/><flush_cache>false</flush_cache><name>delete</name><record_for_rollback>false</record_for_rollback><run_once>true</run_once><script><![CDATA[gs = new GlideRecord('x_snc_fadv_first_advantage_task');
-gs.query();
-while(gs.next()){
-	gs.deleteRecord();
-}]]></script><sys_class_name>sys_script_fix</sys_class_name><sys_created_by>admin</sys_created_by><sys_created_on>2019-11-24 11:04:42</sys_created_on><sys_id>433d8e3ddb5500143e146583ca961973</sys_id><sys_mod_count>1</sys_mod_count><sys_name>delete</sys_name><sys_package display_value="First Advantage Spoke" source="x_snc_fadv">56e01698dbb333403e146583ca96192d</sys_package><sys_policy/><sys_scope display_value="First Advantage Spoke">56e01698dbb333403e146583ca96192d</sys_scope><sys_update_name>sys_script_fix_433d8e3ddb5500143e146583ca961973</sys_update_name><sys_updated_by>admin</sys_updated_by><sys_updated_on>2019-11-24 11:08:26</sys_updated_on><unloadable>false</unloadable></sys_script_fix></record_update>

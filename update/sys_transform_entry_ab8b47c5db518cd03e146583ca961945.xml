@@ -12,15 +12,12 @@
 
 	var client_reference = source.number;
 	if (client_reference != "") {
-		gs.info("Inscript :"  + client_reference);
 		var order_task_number = new GlideRecord('x_snc_fadv_first_advantage_task');
 		var client_reference_from_webhook = client_reference;
 		if(source.client_reference_is_single_or_mulitple == 'single'){
-			gs.info("single");
 			order_task_number.addQuery('number', client_reference_from_webhook);
 		}
 		else{
-			gs.info("multiple");
 			order_task_number.addQuery('number','IN',  client_reference_from_webhook);
 		}
 
@@ -66,14 +63,14 @@
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2019-11-22 07:40:46</sys_created_on>
         <sys_id>ab8b47c5db518cd03e146583ca961945</sys_id>
-        <sys_mod_count>16</sys_mod_count>
+        <sys_mod_count>17</sys_mod_count>
         <sys_name>[Script]</sys_name>
         <sys_package display_value="First Advantage Spoke" source="x_snc_fadv">56e01698dbb333403e146583ca96192d</sys_package>
         <sys_policy/>
         <sys_scope display_value="First Advantage Spoke">56e01698dbb333403e146583ca96192d</sys_scope>
         <sys_update_name>sys_transform_entry_ab8b47c5db518cd03e146583ca961945</sys_update_name>
-        <sys_updated_by>admin</sys_updated_by>
-        <sys_updated_on>2019-11-24 15:11:14</sys_updated_on>
+        <sys_updated_by>priytam</sys_updated_by>
+        <sys_updated_on>2019-12-05 09:03:33</sys_updated_on>
         <target_field>number</target_field>
         <target_table>x_snc_fadv_first_advantage_task</target_table>
         <use_source_script>true</use_source_script>

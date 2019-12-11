@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update sys_domain="global" table="sys_complex_object">
+    <sys_complex_object action="INSERT_OR_UPDATE">
+        <label/>
+        <name>FD32ffef695e614c14e5caa783d3c97457</name>
+        <namespace>FlowDesigner</namespace>
+        <scope_name>56e01698dbb333403e146583ca96192d</scope_name>
+        <serialized_content>{"FlowDesigner:FD32ffef695e614c14e5caa783d3c97457":{"$COCollectionField":["String"],"$COCollectionField.$field_facets":{"SimpleMapFacet":"{\"up-shift-collection-level\":\"true\"}"}},"FlowDesigner:FD32ffef695e614c14e5caa783d3c97457.$type_facets":{"SimpleMapFacet":"{\"default_value\":\"\",\"label\":\"Client References\",\"mandatory\":\"false\",\"child_name\":\"client_reference_child\",\"uiUniqueId\":\"5fa012d4-dca4-4132-ab31-bf94e9acfb56\",\"uiTypeLabel\":\"Array.String\",\"co_type_name\":\"FD32ffef695e614c14e5caa783d3c97457\",\"child_label\":\"Client Reference\",\"child_type_label\":\"String\",\"element_mapping_provider\":\"com.glide.flow_design.action.data.FlowDesignVariableMapper\",\"read_only\":\"false\",\"hint\":null,\"uiType\":\"array.string\",\"child_type\":\"string\",\"order\":\"6\",\"max_length\":\"8000\",\"child_uiUniqueId\":\"14d880de-3773-47fd-8637-1e089189ad2a\"}"}}</serialized_content>
+        <sys_class_name>sys_complex_object</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2019-12-06 09:52:02</sys_created_on>
+        <sys_domain>global</sys_domain>
+        <sys_id>f2ffef69db614c143e146583ca961957</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>FD32ffef695e614c14e5caa783d3c97457</sys_name>
+        <sys_overrides/>
+        <sys_package display_value="First Advantage Spoke" source="x_snc_fadv">56e01698dbb333403e146583ca96192d</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="First Advantage Spoke">56e01698dbb333403e146583ca96192d</sys_scope>
+        <sys_update_name>sys_complex_object_f2ffef69db614c143e146583ca961957</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2019-12-06 09:52:02</sys_updated_on>
+        <type>complex_object_collection</type>
+    </sys_complex_object>
+</record_update>

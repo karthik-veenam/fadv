@@ -57,23 +57,23 @@ FirstAdvantageSpokeErrorHandler.prototype = {
 
 
             //Create New Candidate
-            "invalid_first_name": "Provided First Name is invalid or not found.",
-            "invalid_last_name": "Provided Last Name is invalid or not found.",
-            "invalid_city": "Provided City is invalid or not found.",
-            "invalid_state": "Provided State is invalid or not found.",
-            "invalid_country": "Provided Country is invalid or not found.",
-            "city_country": "Provided City and Country is invalid or not found.",
-            "state_country": "Provided State and Country is invalid or not found.",
-            "city_state": "Provided City and State is invalid or not found.",
-            "invalid_phones": "Provided Phone number is invalid or not found.",
+            "invalid_first_name": "Provided First Name is invalid.",
+            "invalid_last_name": "Provided Last Name is invalid.",
+            "invalid_city": "Provided City is invalid.",
+            "invalid_state": "Provided State is invalid.",
+            "invalid_country": "Provided Country is invalid.",
+            "city_country": "Provided City and Country is invalid.",
+            "state_country": "Provided State and Country is invalid.",
+            "city_state": "Provided City and State is invalid.",
+            "invalid_phones": "Provided Phone number is invalid.",
             "candidate_conflict": "Candidate with provided details already exist.",
-            "invalid_emailid": "Provided Email is invalid or not found.",
-            "invalid_middle_name": "Provided Middle Name is invalid or not found.",
-            "invalid_maiden_name": "Provided Maiden Name is invalid or not found.",
-            "invalid_suffix": "Provided Suffix is invalid or not found.",
-            "invalid_salutation": "Provided Salutation is invalid or not found.",
-            "invalid_extension": "Provided Extension is invalid or not found.",
-            "invalid_country_code": "Provided Country Code is invalid or not found.",
+            "invalid_emailid": "Provided Email is invalid.",
+            "invalid_middle_name": "Provided Middle Name is invalid.",
+            "invalid_maiden_name": "Provided Maiden Name is invalid.",
+            "invalid_suffix": "Provided Suffix is invalid.",
+            "invalid_salutation": "Provided Salutation is invalid.",
+            "invalid_extension": "Provided Extension is invalid.",
+            "invalid_country_code": "Provided Country Code is invalid.",
 
 
             //Activate/Deactivate User.
@@ -144,10 +144,6 @@ FirstAdvantageSpokeErrorHandler.prototype = {
                 else if ((inputs.response.indexOf('/salutation : JSON payload type (JSON payload) does not match any allowed primitive type (allowed: string).') != -1))
                     outputs.error_message = this.retrieveErrorMessage('invalid_salutation');
                 break;
-                /*case "409":
-                    if (inputs.response.indexOf('Candidate data conflict.') != -1)
-                        outputs.error_message = this.retrieveErrorMessage('candidate_conflict');
-                    break; */
             default:
                 this.genericErrorHandler(inputs, outputs);
         }
@@ -158,21 +154,21 @@ FirstAdvantageSpokeErrorHandler.prototype = {
         switch (String(inputs.status_code)) {
 
             case "400":
-                if ((inputs.response.indexOf('/given_name : JSON payload type (JSON payload) does not match any allowed primitive type (allowed: string). ') != -1) || (inputs.response.indexOf('/given_name : Incorrect value.') != -1))
+                if ((inputs.response.indexOf('/given_name : JSON payload type') != -1) || (inputs.response.indexOf('/given_name : Incorrect value.') != -1))
                     outputs.error_message = this.retrieveErrorMessage('invalid_first_name');
-                else if ((inputs.response.indexOf('/family_name : JSON payload type (JSON payload) does not match any allowed primitive type (allowed: string). ') != -1) || (inputs.response.indexOf('/family_name : Incorrect value.') != -1))
+                else if ((inputs.response.indexOf('/family_name : JSON payload type') != -1) || (inputs.response.indexOf('/family_name : Incorrect value.') != -1))
                     outputs.error_message = this.retrieveErrorMessage('invalid_last_name');
-                else if ((inputs.response.indexOf('/email : JSON payload type (JSON payload) does not match any allowed primitive type (allowed: string). ') != -1) || (inputs.response.indexOf('/email : Incorrect value.') != -1))
+                else if ((inputs.response.indexOf('/email : JSON payload type') != -1) || (inputs.response.indexOf('/email : Incorrect value.') != -1))
                     outputs.error_message = this.retrieveErrorMessage('invalid_emailid');
                 else if ((inputs.response.indexOf('JSON payload has missing required properties (number).') != -1) || (inputs.response.indexOf('/number : Incorrect value.') != -1))
                     outputs.error_message = this.retrieveErrorMessage('invalid_phones');
-                else if ((inputs.response.indexOf('/middle_name : JSON payload type (JSON payload) does not match any allowed primitive type (allowed: string).') != -1))
+                else if ((inputs.response.indexOf('/middle_name : JSON payload type') != -1))
                     outputs.error_message = this.retrieveErrorMessage('invalid_middle_name');
-                else if ((inputs.response.indexOf('/maiden_name : JSON payload type (JSON payload) does not match any allowed primitive type (allowed: string).') != -1))
+                else if ((inputs.response.indexOf('/maiden_name : JSON payload type') != -1))
                     outputs.error_message = this.retrieveErrorMessage('invalid_maiden_name');
-                else if ((inputs.response.indexOf('/suffix : JSON payload type (JSON payload) does not match any allowed primitive type (allowed: string).') != -1))
+                else if ((inputs.response.indexOf('/suffix : JSON payload type') != -1))
                     outputs.error_message = this.retrieveErrorMessage('invalid_suffix');
-                else if ((inputs.response.indexOf('/salutation : JSON payload type (JSON payload) does not match any allowed primitive type (allowed: string).') != -1))
+                else if ((inputs.response.indexOf('/salutation : JSON payload type') != -1))
                     outputs.error_message = this.retrieveErrorMessage('invalid_salutation');
                 else if ((inputs.response.indexOf('/extension : Incorrect value.') != -1))
                     outputs.error_message = this.retrieveErrorMessage('invalid_extension');
@@ -707,13 +703,13 @@ FirstAdvantageSpokeErrorHandler.prototype = {
         <sys_created_by>mohammadik</sys_created_by>
         <sys_created_on>2019-09-06 06:26:09</sys_created_on>
         <sys_id>5b085294dbb3b3406a555275ca9619c0</sys_id>
-        <sys_mod_count>296</sys_mod_count>
+        <sys_mod_count>299</sys_mod_count>
         <sys_name>FirstAdvantageSpokeErrorHandler</sys_name>
         <sys_package display_value="First Advantage Spoke" source="x_snc_fadv">56e01698dbb333403e146583ca96192d</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="First Advantage Spoke">56e01698dbb333403e146583ca96192d</sys_scope>
         <sys_update_name>sys_script_include_5b085294dbb3b3406a555275ca9619c0</sys_update_name>
         <sys_updated_by>sheetals</sys_updated_by>
-        <sys_updated_on>2019-11-01 13:10:27</sys_updated_on>
+        <sys_updated_on>2019-12-06 07:35:56</sys_updated_on>
     </sys_script_include>
 </record_update>

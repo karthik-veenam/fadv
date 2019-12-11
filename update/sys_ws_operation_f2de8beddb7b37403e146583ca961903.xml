@@ -9,49 +9,61 @@
         <name>Order Status</name>
         <operation_script><![CDATA[(function process( /*RESTAPIRequest*/ request, /*RESTAPIResponse*/ response) {
     var autho_header = request.getHeader('authorization');
-	var code = new x_snc_fadv.FirstAdvantageWebhookUtilswithStagingScript().validateWebhookRequest(autho_header);
-	if(code == "200"){ 
-	var requestDetails = new x_snc_fadv.FirstAdvantageWebhookUtilswithStagingScript().validateInputs("Webhook response" ,request.body.data);
-	var order_id = new x_snc_fadv.FirstAdvantageWebhookUtilswithStagingScript().validateInputs("Order ID", requestDetails.order.order_id);
-	var candidate_id = "";
-	var quote_backs = requestDetails.order.meta_data.quote_backs;
-	var client_references = requestDetails.order.meta_data.client_references;
+    var code = new x_snc_fadv.FirstAdvantageWebhookUtilswithStagingScript()
+        .validateWebhookRequest(autho_header);
+    if (code == "200") {
+        var requestDetails = new x_snc_fadv
+            .FirstAdvantageWebhookUtilswithStagingScript().validateInputs(
+                "Webhook response", request.body.data);
+        var order_id = new x_snc_fadv
+            .FirstAdvantageWebhookUtilswithStagingScript().validateInputs(
+                "Order ID", requestDetails.order.order_id);
+        var candidate_id = "";
+        var quote_backs = requestDetails.order.meta_data.quote_backs;
+        var client_references = requestDetails.order.meta_data
+            .client_references;
 
-	for (var i = 0; i <= quote_backs.length; i++) {
-		var obj = quote_backs[i];
-		if (obj.name == 'candidate_id') {
+        for (var i = 0; i <= quote_backs.length; i++) {
+            var obj = quote_backs[i];
+            if (obj.name == 'candidate_id') {
 
 
-			candidate_id = new x_snc_fadv.FirstAdvantageWebhookUtilswithStagingScript().validateInputs("Candidate ID" ,obj.value);
-			break;
-		}
-	}
+                candidate_id = new x_snc_fadv
+                    .FirstAdvantageWebhookUtilswithStagingScript()
+                    .validateInputs("Candidate ID", obj.value);
+                break;
+            }
+        }
 
-	var inputPayload = {
-		order_id : order_id,
-		order_status : requestDetails.order.order_status,
-		result_status : requestDetails.order.result_status,
-		package_id : requestDetails.order.package_id,
-		candidate_id : candidate_id
-	};
+        var inputPayload = {
+            order_id: order_id,
+            order_status: requestDetails.order.order_status,
+            result_status: requestDetails.order.result_status,
+            package_id: requestDetails.order.package_id,
+            candidate_id: candidate_id
+        };
 
-	if(typeof client_references == 'string')
-		inputPayload['client_reference'] = requestDetails.order.meta_data.client_references;
+        if (typeof client_references == 'string')
+            inputPayload['client_reference'] = requestDetails.order
+            .meta_data.client_references;
 
-	else{
-		if(client_references != null && client_references !='' && client_references.join().replace(/,/g,'').length !== 0)
-			inputPayload['client_references'] = client_references;
+        else {
+            if (client_references != null && client_references != '' &&
+                client_references.join().replace(/,/g, '').length !== 0)
+                inputPayload['client_references'] = client_references;
 
-		else
-			inputPayload['client_reference'] = '';
-	}
+            else
+                inputPayload['client_reference'] = '';
+        }
 
-	gs.info("webhook payload rest api: " + JSON.stringify(inputPayload));
-	new x_snc_fadv.FirstAdvantageWebhookUtilswithStagingScript().processWebhookOrderPayload(inputPayload);
-	return ("ok");
-	} else {
-		return 500;
-	}
+        gs.info("webhook payload rest api: " + JSON.stringify(
+        inputPayload));
+        new x_snc_fadv.FirstAdvantageWebhookUtilswithStagingScript()
+            .processWebhookOrderPayload(inputPayload);
+        return ("ok");
+    } else {
+        return 500;
+    }
 })(request, response);]]></operation_script>
         <operation_uri>/api/x_snc_fadv/fadv/order_status</operation_uri>
         <produces>application/json,application/xml,text/xml</produces>
@@ -66,14 +78,14 @@
         <sys_created_by>anamika</sys_created_by>
         <sys_created_on>2019-09-10 07:38:04</sys_created_on>
         <sys_id>f2de8beddb7b37403e146583ca961903</sys_id>
-        <sys_mod_count>131</sys_mod_count>
+        <sys_mod_count>132</sys_mod_count>
         <sys_name>Order Status</sys_name>
         <sys_package display_value="First Advantage Spoke" source="x_snc_fadv">56e01698dbb333403e146583ca96192d</sys_package>
         <sys_policy/>
         <sys_scope display_value="First Advantage Spoke">56e01698dbb333403e146583ca96192d</sys_scope>
         <sys_update_name>sys_ws_operation_f2de8beddb7b37403e146583ca961903</sys_update_name>
         <sys_updated_by>priytam</sys_updated_by>
-        <sys_updated_on>2019-12-03 06:19:20</sys_updated_on>
+        <sys_updated_on>2019-12-05 09:06:56</sys_updated_on>
         <web_service_definition display_value="First Advantage Webhook">9a2b8b2ddb7b37403e146583ca961930</web_service_definition>
         <web_service_version/>
     </sys_ws_operation>

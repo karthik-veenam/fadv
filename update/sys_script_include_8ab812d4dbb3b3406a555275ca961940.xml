@@ -76,12 +76,12 @@ FirstAdvantageSpokeUtils.prototype = {
                 return encodeURI(email);
             } else {
                 throw new Error(
-                    "Provided Email is invalid or not found."
+                    "Provided Email is invalid."
                 );
             }
         } catch (err) {
             throw new Error(
-                "Provided Email is invalid or not found."
+                "Provided Email is invalid."
             );
         }
     },
@@ -91,12 +91,12 @@ FirstAdvantageSpokeUtils.prototype = {
                 return encodeURI(first_name);
             } else {
                 throw new Error(
-                    "Provided First Name is invalid or not found."
+                    "Provided First Name is invalid."
                 );
             }
         } catch (err) {
             throw new Error(
-                "Provided First Name is invalid or not found."
+                "Provided First Name is invalid."
             );
         }
     },
@@ -108,12 +108,12 @@ FirstAdvantageSpokeUtils.prototype = {
                 return encodeURI(last_name);
             } else {
                 throw new Error(
-                    "Provided Last Name is invalid or not found."
+                    "Provided Last Name is invalid."
                 );
             }
         } catch (err) {
             throw new Error(
-                "Provided Last Name is invalid or not found."
+                "Provided Last Name is invalid."
             );
         }
     },
@@ -125,12 +125,12 @@ FirstAdvantageSpokeUtils.prototype = {
 
             } else {
                 throw new Error(
-                    "Provided Phone Number is invalid or not found."
+                    "Provided Phone Number is invalid."
                 );
             }
         } catch (err) {
             throw new Error(
-                "Provided Phone Number is invalid or not found."
+                "Provided Phone Number is invalid."
             );
         }
     },
@@ -252,13 +252,13 @@ FirstAdvantageSpokeUtils.prototype = {
         <sys_created_by>mohammadik</sys_created_by>
         <sys_created_on>2019-09-06 06:28:57</sys_created_on>
         <sys_id>8ab812d4dbb3b3406a555275ca961940</sys_id>
-        <sys_mod_count>140</sys_mod_count>
+        <sys_mod_count>141</sys_mod_count>
         <sys_name>FirstAdvantageSpokeUtils</sys_name>
         <sys_package display_value="First Advantage Spoke" source="x_snc_fadv">56e01698dbb333403e146583ca96192d</sys_package>
         <sys_policy>read</sys_policy>
         <sys_scope display_value="First Advantage Spoke">56e01698dbb333403e146583ca96192d</sys_scope>
         <sys_update_name>sys_script_include_8ab812d4dbb3b3406a555275ca961940</sys_update_name>
         <sys_updated_by>sheetals</sys_updated_by>
-        <sys_updated_on>2019-11-06 07:04:47</sys_updated_on>
+        <sys_updated_on>2019-12-06 07:39:13</sys_updated_on>
     </sys_script_include>
 </record_update>
